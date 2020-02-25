@@ -20,8 +20,7 @@ In **Step 2: Configuring your Lambda function**, use the following keys and valu
   - `HOST`: `preview-delivery.kontent.ai`
   - `PATH`: `/<Project ID>/items`
 
-You can test it by configuring https://kentico.github.io/kontent-custom-element-samples/UniqueTextbox/unique_text.html url for your custom element.
-
+[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/hzik/LinkChecker/)
 ### Link checking
 
 Since all custom elements need to run on https but not all links starts with this protocol or don't even support this protocol, you can't make requests directly from this element due to browser security protection.
