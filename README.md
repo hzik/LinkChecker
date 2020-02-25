@@ -26,7 +26,72 @@ You can test it by configuring https://kentico.github.io/kontent-custom-element-
 
 Since all custom elements need to run on https but not all links starts with this protocol or don't even support this protocol, you can't make requests directly from this element due to browser security protection.
 Please create a simple request service that takes the url parameter from the POST request and makes another call to this url and sends back the return code of such request.
-A php sample of such a requester:
+
+A .Net Core lambda and php sample of such a requester:
+
+```C#
+using Amazon.Lambda.Core;
+using System.Net;
+
+// Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
+[assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.Json.JsonSerializer))]
+
+
+namespace urlchecker
+{
+    public class Function
+    {
+        public string FunctionHandler(FunctionInput input, ILambdaContext context)
+        {
+            int statusCode = (int)default(HttpStatusCode);
+            string url = input.url;
+            var request = HttpWebRequest.Create(url);
+            request.Method = "HEAD";
+            request.Timeout = 10000;
+
+            try
+            {
+                using (var response = request.GetResponse() as HttpWebResponse)
+                {
+                    if (response != null)
+                    {
+                        statusCode = (int)response.StatusCode;
+                        response.Close();
+                    }
+                }
+            }
+
+            catch (WebException e)
+            {
+                if (e.Status == WebExceptionStatus.ProtocolError)
+                {
+                    var response = e.Response as HttpWebResponse;
+
+                    if (response != null)
+                    {
+                        statusCode = (int)response.StatusCode;
+                        response.Close();
+                    }
+                    else
+                    {
+                        return "Unknown error encountered.";
+                    }
+                }
+                else
+                {
+                    return "Unknown error encountered.";
+                }
+            }
+            return statusCode.ToString();
+        }
+    }
+
+    public class FunctionInput
+    {
+        public string url { get; set; }
+    }
+}
+```
 
 ```php
 <?php
