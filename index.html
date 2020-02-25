@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Link checker</title>
+    <!-- Include jQuery library -->
+	<script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+	
+    <!-- Include the Custom Elements API-->
+    <script src="https://app.kenticocloud.com/js-api/custom-element.js"></script>
+	<link rel="stylesheet" href="./custom-element.css" />
+
+    <!-- Custom element CSS styles -->
+    <style>
+		/* We recommended you always set margin to zero to avoid problems when displaying the element in UI */
+		@import url(https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700,400italic,700italic);
+		html{
+		  font-family:sans-serif;
+		  -ms-text-size-adjust:100%;
+		  -webkit-text-size-adjust:100%;
+		}
+		body {
+			margin: 0;
+			overflow-y: hidden;
+			overflow-x: hidden;
+		}	
+		
+		#linklist {
+			width:100%;
+		}	
+		td {
+			overflow:hidden;
+			white-space: nowrap;
+			text-overflow: ellipsis;
+			padding: 3px 5px;
+		}
+		tr:hover:not(:first-child) {
+			background-color: #EEE;
+		}
+		.status, .richtext {
+			text-align:center;
+		}	
+		.title, .link {
+			max-width:250px;
+		}	
+		.richtext {
+			max-width:100px;
+		}	
+		#check_links {
+			margin: 5px;
+		}
+
+		.disabled_overlay {
+			position: fixed;
+			background-color: #777;
+			z-index: 10;
+			cursor: not-allowed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			opacity: 0.1;
+		}
+    </style>
+</head>
+<body>
+	<div class="disabled_overlay"></div>
+	<div id="element">
+		<button id="check_links">Check links</button>
+	</div>
+<script>	
+	var item_id = '';
+	var requestRepeater = '';
+	var numberOfLinks = 0;
+	
+	function updateDisabled(disabled) {
+		if (disabled) {
+			$('.disabled_overlay').show();
+		}
+		else {
+			$('.disabled_overlay').hide();
+		}
+	}
+	
+	function setup(value) {	
+		$("#check_links").click(function(e) {	
+			checkLinks();
+		});
+	}
+  
+	function updateSize() {
+		var height = 100;
+		try {
+			height = parseInt($("html").height());		
+		} catch (err) {
+			console.error(err);
+		}
+		CustomElement.setHeight(height);
+	}
+  
+	function initCustomElement() {
+		try {
+			CustomElement.init((element, _context) => {
+				item_id = _context.item.id;
+				var configError = true;
+				if (element.config) {
+					if (element.config.request_repeater) {
+						requestRepeater = element.config.request_repeater;
+						configError = false;
+					}
+					else {
+						showError("Your configuration doesn't contain the url of a request repeater. Please check the documentation of this element.");
+					}
+				}
+				if (!configError) {
+					setup(element.value);		
+				}
+				
+				updateDisabled(element.disabled);
+				updateSize();
+			});
+			CustomElement.onDisabledChanged(updateDisabled);
+		} catch (err) {
+			console.error(err);
+			updateDisabled(true);
+		}
+	}
+  
+	initCustomElement();	
+		
+	function checkLinks() {	
+		numberOfLinks = 0;
+		var urlItem = requestRepeater+"?system.id="+item_id;
+		$.ajax({
+			url: urlItem,
+			type: "GET",
+			dataType: 'text',
+			success: function (data) {
+			console.log(data);
+			console.log(JSON.parse(data));
+				iterateRichTexts(JSON.parse(String(data)));
+			}
+		});	
+	}
+	
+	function iterateRichTexts(data) {
+		var elements = data.items[0].elements;
+		for (var element in elements) {
+			if (elements[element].type == "rich_text") {
+				findLinksIn(elements[element].name, elements[element].value);
+			}
+		}
+	}
+	
+	function findLinksIn(name,value) {
+		var reg = /<a([^>]+)>(.+?)<\/a>/g;
+		var result;
+		$('#linklist').remove();
+		$('#element').append('<table id="linklist"><tr><th>Link title</th><th>Link url</th><th>Rich text</th><th>Working link</th></tr></table>');
+		while((result = reg.exec(value)) !== null) {			
+			checkLink(result[1].split('"')[1],result[2],name);
+		}
+	}
+	
+	function checkLink(url,title,name) {		
+		numberOfLinks++;
+		
+		var data = {
+					  "url": url
+				   }
+		$.ajax({
+			url: "https://amend.cz/checker.php", // add a link to your own request service
+			type: "POST",
+			data: data,
+			dataType: 'text',
+			success: function (data) {
+				showLinkResult(url,title,name,data);
+				numberOfLinks--;
+			}
+		});
+	}
+	
+	function showLinkResult(url,title,name,code) {	
+		var ok = (code<400);
+		var row = '<tr class="row"><td class="title" title="'+title+'"><strong>'+title+'</strong></td><td class="link" title="'+url+'"><a target="_blank" href="'+url+'">'+url+'</a></td><td class="richtext" title="'+name+'">'+name+'</td><td class="status" title="'+code+'">'+(ok?"✔️":"❌")+'</td></tr>';
+		$('#linklist').append(row);
+		updateSize();
+	}
+	
+	function showError(message) {
+		$('#check_links').hide();						
+		$('#element').text(message);
+	}
+
+</script>
+
+</body>
+</html>
