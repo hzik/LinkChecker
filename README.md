@@ -30,13 +30,16 @@ A php sample of such a requester:
 
 ```php
 <?php
-header('Access-Control-Allow-Origin: https://yourcustomelementdomain.com/', false);
-if(isset($_POST['url'])) {
+header('Access-Control-Allow-Origin: *', false);
+$post = json_decode(file_get_contents('php://input'),true);
+if($post['url']) {
 	$req = curl_init();
 	curl_setopt_array($req, [
-		CURLOPT_URL            => $_POST['url'],
+		CURLOPT_URL            => $post['url'],
 		CURLOPT_CUSTOMREQUEST  => "GET",
 		CURLOPT_RETURNTRANSFER => true,
+		CURLOPT_CONNECTTIMEOUT => 10,
+		CURLOPT_TIMEOUT => 10,
 	]);
 		
 	curl_exec($req);
