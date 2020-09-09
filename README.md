@@ -17,7 +17,7 @@ You need to link your request repeater in the `request_repeater` parameter.
 To set up `request_repeater` above, please follow [Working with sensitive data in custom elements](https://docs.kontent.ai/tutorials/develop-apps/integrate/working-with-sensitive-data-in-custom-elements).
 In **Step 2: Configuring your Lambda function**, use the following keys and values in the **Environment variables** section:
   - `BEARER_TOKEN`: `<Preview Delivery API key>`
-  - `HOST`: `preview-delivery.kontent.ai`
+  - `HOST`: `preview-deliver.kontent.ai`
   - `PATH`: `/<Project ID>/items`
 
 [![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/hzik/LinkChecker/)
