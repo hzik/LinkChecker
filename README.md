@@ -152,7 +152,9 @@ exports.handler = (event, context, callback) => {
         });
 };
 ```
+## Configuration
 
+You need to deploy/upload this custom element to any web server that support SSL, or you can take advantage of Netlify service:
 [![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/hzik/LinkChecker)
 ### Link checking
 
