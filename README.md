@@ -95,11 +95,11 @@ namespace urlchecker
 ```php
 <?php
 header('Access-Control-Allow-Origin: *', false);
-$post = json_decode(file_get_contents('php://input'),true);
-if($post['url']) {
+$post = explode("=", file_get_contents('php://input'));
+if(!empty($post[1])) {
 	$req = curl_init();
 	curl_setopt_array($req, [
-		CURLOPT_URL            => $post['url'],
+		CURLOPT_URL            => urldecode($post[1]),
 		CURLOPT_CUSTOMREQUEST  => "GET",
 		CURLOPT_RETURNTRANSFER => true,
 		CURLOPT_CONNECTTIMEOUT => 10,
