@@ -152,10 +152,11 @@ exports.handler = (event, context, callback) => {
         });
 };
 ```
-## Configuration
+## Deployment
 
 You need to deploy/upload this custom element to any web server that support SSL, or you can take advantage of Netlify service:
 [![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/hzik/LinkChecker)
+
 ### Link checking
 
 Since all custom elements need to run on https but not all links starts with this protocol or don't even support this protocol, you can't make requests directly from this element due to browser security protection.
