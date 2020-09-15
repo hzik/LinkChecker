@@ -152,10 +152,6 @@ exports.handler = (event, context, callback) => {
         });
 };
 ```
-## Deployment
-
-You need to deploy/upload this custom element to any web server that support SSL, or you can take advantage of Netlify service:
-[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/hzik/LinkChecker)
 
 ### Link checking
 
@@ -249,3 +245,10 @@ if(!empty($post[1])) {
 }
 ?>
 ```
+
+## Deployment
+
+Before you deploy this custom element to the server, update line 172 of the index.html file with the url of your checker.
+
+You need to deploy/upload this custom element to any web server that support SSL, or you can take advantage of Netlify service:
+[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/hzik/LinkChecker)
